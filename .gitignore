@@ -28,6 +28,7 @@ artifacts/*
 !artifacts/.gitkeep
 evals/results/*
 !evals/results/.gitkeep
+!evals/results/*.md
 evals/golden/*.jsonl
 !evals/golden/VERSION
 !evals/golden/.gitkeep
