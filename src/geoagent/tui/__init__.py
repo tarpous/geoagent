@@ -1,1 +1,5 @@
-"""Package markers for upcoming modules."""
+"""TUI package."""
+
+from geoagent.tui.app import main
+
+__all__ = ["main"]

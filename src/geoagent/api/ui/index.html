@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>geoagent</title>
+  <style>
+    :root {
+      --bg: #0f1714;
+      --panel: #18241e;
+      --ink: #e7f0ea;
+      --muted: #9bb0a4;
+      --accent: #6dbf8a;
+      --line: #2a3b32;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, #1d3a2c 0%, transparent 40%),
+        radial-gradient(circle at 90% 0%, #243a4a 0%, transparent 35%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+    h1 {
+      font-family: "IBM Plex Serif", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .lede { color: var(--muted); max-width: 40rem; margin-bottom: 1.75rem; }
+    form {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: 1fr auto;
+      margin-bottom: 1.5rem;
+    }
+    input, button {
+      font: inherit;
+      border-radius: 0.4rem;
+      border: 1px solid var(--line);
+      padding: 0.85rem 1rem;
+    }
+    input {
+      background: var(--panel);
+      color: var(--ink);
+    }
+    button {
+      background: var(--accent);
+      color: #082014;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .panels {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+    @media (max-width: 800px) {
+      form, .panels { grid-template-columns: 1fr; }
+    }
+    section {
+      background: color-mix(in srgb, var(--panel) 92%, black);
+      border: 1px solid var(--line);
+      border-radius: 0.6rem;
+      padding: 1rem 1.1rem;
+      min-height: 16rem;
+    }
+    h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>geoagent</h1>
+    <p class="lede">Local geospatial analyst swarm. Ask a multi-tool question and inspect the streamed handoff trace beside the final answer.</p>
+    <form id="ask-form">
+      <input id="question" value="How much tree cover was lost within 2 km of the new ring road since 2023?" />
+      <button type="submit">Ask</button>
+    </form>
+    <div class="panels">
+      <section>
+        <h2>Answer</h2>
+        <pre id="answer">Waiting…</pre>
+      </section>
+      <section>
+        <h2>Trace</h2>
+        <pre id="trace">Waiting…</pre>
+      </section>
+    </div>
+  </main>
+  <script>
+    const form = document.getElementById("ask-form");
+    const answerEl = document.getElementById("answer");
+    const traceEl = document.getElementById("trace");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      answerEl.textContent = "Running swarm…";
+      traceEl.textContent = "";
+      const question = document.getElementById("question").value;
+      const res = await fetch("/v1/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      });
+      const data = await res.json();
+      const fa = data.final_answer || {};
+      answerEl.textContent = [
+        `status: ${fa.status}`,
+        "",
+        fa.answer_md || "",
+        "",
+        "numbers:",
+        JSON.stringify(fa.numbers || [], null, 2),
+        "",
+        `map: ${fa.map_artifact || "none"}`,
+      ].join("\n");
+      traceEl.textContent = (data.events || [])
+        .map((e) => `${e.type}${e.agent ? " @" + e.agent : ""} ${JSON.stringify(e.payload)}`)
+        .join("\n");
+    });
+  </script>
+</body>
+</html>

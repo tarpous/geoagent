@@ -1,4 +1,4 @@
-.PHONY: sync test demo lint factory db-up db-down db-ingest evals
+.PHONY: sync test demo lint factory db-up db-down db-ingest evals api tui mcp
 
 PYTHON ?= .venv/Scripts/python.exe
 ifeq ($(OS),Windows_NT)
@@ -39,3 +39,12 @@ db-ingest:
 
 demo:
 	$(PYTHON) -m geoagent.demo --dry-run
+
+api:
+	$(PYTHON) -m geoagent.cli api --host 127.0.0.1 --port 8088
+
+tui:
+	$(PYTHON) -m geoagent.cli tui
+
+mcp:
+	$(PYTHON) -m geoagent.cli mcp
