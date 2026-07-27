@@ -1,0 +1,5 @@
+OpenStreetMap data © OpenStreetMap contributors.
+Licensed under the Open Database License (ODbL): https://opendatacommons.org/licenses/odbl/
+
+Map data used by geoagent must retain attribution in TUI, web UI, and MCP-facing surfaces.
+Geofabrik extracts and derived PostGIS layers remain subject to ODbL share-alike obligations.

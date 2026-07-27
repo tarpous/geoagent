@@ -1,0 +1,18 @@
+# NOTICE
+
+geoagent aggregates third-party software, geospatial data, document corpora, and model weights.
+This file will list attribution and license summaries as assets are added.
+
+## OpenStreetMap
+
+OpenStreetMap data is © OpenStreetMap contributors and is available under the Open Database License (ODbL).
+See `data/osm/ATTRIBUTION` for the project attribution text shown in product clients.
+
+## Documents and models
+
+- Document corpus licenses: `data/corpus_manifest.csv`
+- LLM weight license map: `models/llm/LICENSE-MAP.md`
+- Land-cover ONNX licenses: `models/landcover/LICENSE`
+- Object-detection ONNX licenses: `models/detect/LICENSE`
+
+Additional notices will be appended when third-party packages or weights are vendored or downloaded.

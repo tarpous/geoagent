@@ -1,0 +1,157 @@
+# Locked model profiles for geoagent.
+# Do not silently replace the demo roster. Ablations use profile: ablation-* only.
+
+default_profile: demo
+backends:
+  llamacpp:
+    base_url: "http://127.0.0.1:8080/v1"
+    api_style: openai_compatible
+  vllm:
+    base_url: "http://127.0.0.1:8000/v1"
+    api_style: openai_compatible
+
+profiles:
+  demo:
+    backend: llamacpp
+    n_ctx: 16384
+    seed: 42
+    roles:
+      intake:
+        model: Qwen3.5-9B
+        quant: Q4_K_M
+        temperature: 0.1
+        top_p: 0.9
+      critic:
+        model: Qwen3.5-9B
+        quant: Q4_K_M
+        temperature: 0.1
+        top_p: 0.9
+      baseline:
+        model: Qwen3.5-9B
+        quant: Q4_K_M
+        temperature: 0.1
+        top_p: 0.9
+      specialist:
+        model: Gemma-4-E4B
+        quant: Q5_K_M
+        temperature: 0.1
+        top_p: 0.9
+      factory_author:
+        model: Qwen3.5-9B
+        quant: Q4_K_M
+        temperature: 0.1
+        top_p: 0.9
+      factory_verifier:
+        model: Gemma-4-E4B
+        quant: Q5_K_M
+        temperature: 0.0
+        top_p: 1.0
+      judge:
+        model: Gemma-4-E4B
+        quant: Q5_K_M
+        temperature: 0.0
+        top_p: 1.0
+      factory_draft:
+        model: Gemma-Diffusion
+        quant: Q4_K_M
+        temperature: 0.2
+        top_p: 0.95
+        fallback: Gemma-4-E4B
+      embeddings:
+        model: BGE-M3
+        quant: FP16
+        device: cpu
+      rerank:
+        model: bge-reranker-v2-m3
+        quant: INT8
+        device: cpu
+
+  vllm-serving:
+    backend: vllm
+    max_model_len: 16384
+    seed: 42
+    roles:
+      intake:
+        model: Qwen3.5-9B
+        quant: AWQ-4
+        temperature: 0.1
+        top_p: 0.9
+      critic:
+        model: Qwen3.5-9B
+        quant: AWQ-4
+        temperature: 0.1
+        top_p: 0.9
+      baseline:
+        model: Qwen3.5-9B
+        quant: AWQ-4
+        temperature: 0.1
+        top_p: 0.9
+      specialist:
+        model: Gemma-4-E4B
+        quant: AWQ-4
+        temperature: 0.1
+        top_p: 0.9
+      factory_author:
+        model: Qwen3.5-9B
+        quant: AWQ-4
+        temperature: 0.1
+        top_p: 0.9
+      factory_verifier:
+        model: Gemma-4-E4B
+        quant: AWQ-4
+        temperature: 0.0
+        top_p: 1.0
+      judge:
+        model: Gemma-4-E4B
+        quant: AWQ-4
+        temperature: 0.0
+        top_p: 1.0
+      embeddings:
+        model: BGE-M3
+        quant: FP16
+        device: cpu
+      rerank:
+        model: bge-reranker-v2-m3
+        quant: INT8
+        device: cpu
+
+  ci:
+    backend: llamacpp
+    n_ctx: 4096
+    seed: 7
+    roles:
+      intake:
+        model: Qwen3.5-4B
+        quant: Q4_K_M
+        temperature: 0.0
+        top_p: 1.0
+      critic:
+        model: Qwen3.5-4B
+        quant: Q4_K_M
+        temperature: 0.0
+        top_p: 1.0
+      specialist:
+        model: Gemma-4-E4B
+        quant: Q4_K_M
+        temperature: 0.0
+        top_p: 1.0
+      embeddings:
+        model: BGE-M3
+        quant: INT8
+        device: cpu
+      rerank:
+        model: bge-reranker-v2-m3
+        quant: INT8
+        device: cpu
+
+aois:
+  demo:
+    - Attica
+    - Thessaloniki
+  default_metric_crs: EPSG:2100
+  storage_crs: EPSG:4326
+
+budgets:
+  max_tool_calls_per_specialist: 8
+  max_swarm_steps: 24
+  structured_output_repair_retries: 1

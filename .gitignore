@@ -1,0 +1,34 @@
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+*.egg-info/
+.uv/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Downloaded models and Hugging Face caches
+models/**/*.gguf
+models/**/*.onnx
+models/**/*.safetensors
+models/**/*.bin
+.cache/
+hf_cache/
+
+# Generated demo and evaluation artifacts
+artifacts/*
+!artifacts/.gitkeep
+evals/results/*
+!evals/results/.gitkeep
+
+# Local logs and tooling output
+*.log
+.coverage
+coverage.xml
