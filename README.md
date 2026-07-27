@@ -42,4 +42,7 @@ See `AGENTS.md` for project context and `05-geoagent-agentic-rag.md` for the ful
 - **M2a** — geocode (cached), allowlisted spatial SQL, map GeoJSON/HTML artifacts
 - **M2b** — STAC/NDVI fixtures, land-cover + detections, docs_search tool
 - **M3a** — deterministic swarm handoffs for the Attica hero path → `FinalAnswer`
+- **M3b** — traces, handoff correctness, `tool_call_parse_rate`
+- **M4** — `golden@v1` (~100 items), audit slice, judge + κ calibration scaffolding
+- **M5** — single-agent baseline and swarm-vs-single ablation report
 

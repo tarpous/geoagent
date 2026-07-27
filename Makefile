@@ -1,4 +1,4 @@
-.PHONY: sync test demo lint factory db-up db-down db-ingest
+.PHONY: sync test demo lint factory db-up db-down db-ingest evals
 
 PYTHON ?= .venv/Scripts/python.exe
 ifeq ($(OS),Windows_NT)
@@ -19,7 +19,14 @@ lint:
 	$(PYTHON) -m ruff check src tests evals
 
 factory:
-	$(PYTHON) -m evals.factory.seed
+	$(PYTHON) -m evals.factory.golden_v1
+
+evals:
+	$(PYTHON) -m evals.run handoff
+	$(PYTHON) -m evals.run golden
+	$(PYTHON) -m evals.run judge
+	$(PYTHON) -m evals.run calibrate
+	$(PYTHON) -m evals.run ablation
 
 db-up:
 	$(DOCKER) compose -f deploy/docker-compose.yml up -d --build
