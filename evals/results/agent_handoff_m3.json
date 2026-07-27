@@ -1,0 +1,39 @@
+{
+  "question": "How much tree cover was lost within 2 km of the new ring road since 2023?",
+  "status": "answered",
+  "schema_ok": true,
+  "tool_call_parse_rate": 1.0,
+  "handoff_path": [
+    "geodata",
+    "earth-obs",
+    "librarian",
+    "cartographer",
+    "critic"
+  ],
+  "handoff_correctness": 1.0,
+  "expected_path": [
+    "intake",
+    "geodata",
+    "earth-obs",
+    "librarian",
+    "cartographer",
+    "critic"
+  ],
+  "tool_calls": 6,
+  "numbers": [
+    {
+      "name": "ndvi_mean",
+      "value": 0.23054670192001486,
+      "unit": "dimensionless",
+      "source_tool": "stac_imagery",
+      "ci": null
+    },
+    {
+      "name": "tree_cover_loss",
+      "value": 0.07,
+      "unit": "ha",
+      "source_tool": "landcover_classify",
+      "ci": null
+    }
+  ]
+}

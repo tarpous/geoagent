@@ -15,14 +15,14 @@
       "swarm": {
         "status": "answered",
         "score": 0.9999999999999999,
-        "latency_s": 0.18596509999952104,
+        "latency_s": 0.19953690000147617,
         "tool_call_parse_rate": 1.0,
         "handoffs": 5
       },
       "single": {
         "status": "answered",
         "score": 0.9999999999999999,
-        "latency_s": 0.2048640000011801,
+        "latency_s": 0.22547810000105528,
         "handoffs": 0
       }
     },
@@ -31,14 +31,14 @@
       "swarm": {
         "status": "answered",
         "score": 0.9999999999999999,
-        "latency_s": 0.22214699999858567,
+        "latency_s": 0.18175390000033076,
         "tool_call_parse_rate": 1.0,
         "handoffs": 5
       },
       "single": {
         "status": "answered",
         "score": 0.9999999999999999,
-        "latency_s": 0.1521229999998468,
+        "latency_s": 0.16029410000010103,
         "handoffs": 0
       }
     }

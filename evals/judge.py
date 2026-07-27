@@ -9,7 +9,7 @@ from evals.factory.schema import GoldenItem
 from geoagent.baseline import run_single_agent
 from geoagent.swarm import run_swarm
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 
 
 def load_golden(path: Path) -> list[GoldenItem]:

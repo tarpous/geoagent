@@ -9,7 +9,7 @@ from pathlib import Path
 from geoagent.baseline import run_single_agent
 from geoagent.swarm import run_swarm_with_trace
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT / "results" / "ablation_swarm_vs_single.json"
 
 QUESTIONS = [

@@ -11,8 +11,8 @@ from geoagent.swarm.graph import (
     run_swarm_with_trace,
 )
 
-ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_OUT = ROOT / "evals" / "results" / "agent_handoff_m3.json"
+ROOT = Path(__file__).resolve().parent
+DEFAULT_OUT = ROOT / "results" / "agent_handoff_m3.json"
 
 
 def evaluate_hero_handoff(
