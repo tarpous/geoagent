@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+.local
+.cursor
+artifacts
+models
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+*.egg-info
+agent-transcripts
+terminals

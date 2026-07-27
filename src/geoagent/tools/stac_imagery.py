@@ -145,19 +145,38 @@ def ndvi_composite_stats(
     bbox: list[float],
     start_date: str,
     end_date: str,
+    max_cloud: float = 40.0,
 ) -> dict[str, Any]:
-    scenes = search_imagery(bbox=bbox, start_date=start_date, end_date=end_date)
+    """Cloud-masked NDVI composite over scenes in an inclusive UTC date range."""
+    scenes = search_imagery(bbox=bbox, start_date=start_date, end_date=end_date, max_cloud=max_cloud)
     if not scenes:
-        return {"ok": False, "error": "no_scenes", "scenes": []}
+        return {
+            "ok": False,
+            "error": "no_scenes",
+            "scenes": [],
+            "timezone": "UTC",
+            "start_date": start_date,
+            "end_date": end_date,
+            "max_cloud": max_cloud,
+            "cloud_mask": "eo:cloud_cover filter",
+        }
     means = [s.ndvi_mean for s in scenes if not math.isnan(s.ndvi_mean)]
     return {
         "ok": True,
         "scene_count": len(scenes),
         "ndvi_mean": sum(means) / len(means) if means else None,
+        "timezone": "UTC",
+        "start_date": start_date,
+        "end_date": end_date,
+        "inclusive": True,
+        "max_cloud": max_cloud,
+        "cloud_mask": "eo:cloud_cover filter",
+        "unit": "dimensionless",
         "scenes": [
             {
                 "scene_id": s.scene_id,
                 "datetime": s.datetime,
+                "timezone": "UTC",
                 "cloud_cover": s.cloud_cover,
                 "ndvi_mean": s.ndvi_mean,
                 "source": s.source,

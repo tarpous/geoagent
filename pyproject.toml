@@ -22,6 +22,7 @@ dependencies = [
   "uvicorn[standard]>=0.30,<1",
   "rich>=13.7,<15",
   "mcp>=1.1,<2",
+  "langgraph>=0.2,<1",
 ]
 
 [project.optional-dependencies]
@@ -60,3 +61,4 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501", "UP047"]

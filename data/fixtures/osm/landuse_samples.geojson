@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"landuse": "farmland", "aoi": "Attica", "name": "sample farmland"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[23.71, 37.95], [23.73, 37.95], [23.73, 37.97], [23.71, 37.97], [23.71, 37.95]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"landuse": "forest", "aoi": "Attica", "name": "sample forest"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[23.74, 37.98], [23.76, 37.98], [23.76, 38.00], [23.74, 38.00], [23.74, 37.98]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"landuse": "industrial", "aoi": "Thessaloniki", "name": "sample industrial"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[22.92, 40.62], [22.94, 40.62], [22.94, 40.64], [22.92, 40.64], [22.92, 40.62]]]
+      }
+    }
+  ]
+}

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from evals.factory.schema import GoldenItem
 from geoagent.baseline import run_single_agent
-from geoagent.swarm import run_swarm
+from geoagent.swarm import run_swarm_with_trace
 
 ROOT = Path(__file__).resolve().parent
 
@@ -21,27 +21,40 @@ def load_golden(path: Path) -> list[GoldenItem]:
     return items
 
 
+def _tools_from_trace(events_or_calls: list) -> set[str]:
+    tools: set[str] = set()
+    for item in events_or_calls:
+        if isinstance(item, dict):
+            tool = item.get("tool") or (item.get("payload") or {}).get("tool")
+            if tool and not str(tool).startswith("transfer_to_") and tool != "swarm_join":
+                tools.add(str(tool))
+    return tools
+
+
 def judge_item(item: GoldenItem, *, mode: str = "swarm") -> dict:
     if mode == "single":
         answer = run_single_agent(item.question)
+        tools_mentioned = {n.source_tool for n in answer.numbers}
+        if answer.citations:
+            tools_mentioned.add("docs_search")
+        if answer.map_artifact:
+            tools_mentioned.add("make_map")
+        trace_tools: set[str] = set()
     else:
-        answer = run_swarm(item.question)
+        answer, trace = run_swarm_with_trace(item.question)
+        tools_mentioned = {n.source_tool for n in answer.numbers}
+        if answer.citations:
+            tools_mentioned.add("docs_search")
+        if answer.map_artifact:
+            tools_mentioned.add("make_map")
+        trace_tools = _tools_from_trace(trace.tool_calls)
+        tools_mentioned |= trace_tools
 
     status_ok = answer.status == item.expects_status or (
         item.expects_status == "answered" and answer.status in {"answered", "degraded"}
     )
-    # Refusal items should be refused; for out-of-AOI Singapore the deterministic
-    # swarm currently still answers via Attica defaults — count as fail for honesty.
     if item.expects_status == "refused":
         status_ok = answer.status == "refused"
-
-    tools_mentioned = []
-    for num in answer.numbers:
-        tools_mentioned.append(num.source_tool)
-    if answer.citations:
-        tools_mentioned.append("docs_search")
-    if answer.map_artifact:
-        tools_mentioned.append("make_map")
 
     tool_recall = 1.0
     if item.expects_tools:
@@ -56,6 +69,7 @@ def judge_item(item: GoldenItem, *, mode: str = "swarm") -> dict:
         "tool_recall": tool_recall,
         "score": score,
         "answer_status": answer.status,
+        "tools_seen": sorted(tools_mentioned),
     }
 
 

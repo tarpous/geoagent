@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
+from geoagent.swarm.policy import transfer_control
+from geoagent.swarm.state import TeamState
+from geoagent.swarm.tool_allowlists import assert_tool_allowed
 from geoagent.tools.detect import detection_summary
 from geoagent.tools.landcover import tree_cover_loss_ha
 from geoagent.tools.stac_imagery import ndvi_composite_stats
-from geoagent.swarm.handoffs import handoff_to
-from geoagent.swarm.state import TeamState
 
 
-def run_earth_obs(state: TeamState) -> TeamState:
+def work_earth_obs(state: TeamState) -> TeamState:
     bbox = [23.70, 37.90, 23.80, 38.00]
     if state.aoi == "Thessaloniki":
         bbox = [22.90, 40.60, 23.00, 40.70]
 
+    assert_tool_allowed("earth-obs", "stac_imagery")
     stats = ndvi_composite_stats(
         bbox=bbox,
         start_date="2023-01-01",
@@ -32,6 +34,7 @@ def run_earth_obs(state: TeamState) -> TeamState:
         )
 
     if "tree" in state.question.lower() or "cover" in state.question.lower():
+        assert_tool_allowed("earth-obs", "landcover_classify")
         loss = tree_cover_loss_ha(
             before_scene_id="attica-ringroad-2023-04",
             after_scene_id="attica-ringroad-2024-06",
@@ -48,6 +51,7 @@ def run_earth_obs(state: TeamState) -> TeamState:
         )
 
     if "vehicle" in state.question.lower() or "detect" in state.question.lower():
+        assert_tool_allowed("earth-obs", "detect_objects")
         det = detection_summary("attica-ringroad-2024-06")
         state.tool_calls += 1
         state.evidence.append({"tool": "detect_objects", "result": det})
@@ -59,5 +63,13 @@ def run_earth_obs(state: TeamState) -> TeamState:
                 "source_tool": "detect_objects",
             }
         )
+    return state
 
-    return handoff_to(state, "librarian", "Need citation support from corpus")
+
+def run_earth_obs(state: TeamState, *, transfer: bool = True) -> TeamState:
+    state = work_earth_obs(state)
+    if not transfer:
+        if state.active_agent not in state.visited_agents:
+            state.visited_agents.append(state.active_agent)
+        return state
+    return transfer_control(state, from_agent="earth-obs")

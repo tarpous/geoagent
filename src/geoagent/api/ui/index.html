@@ -25,7 +25,7 @@
       min-height: 100vh;
     }
     main {
-      max-width: 960px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 2.5rem 1.25rem 4rem;
     }
@@ -49,10 +49,7 @@
       border: 1px solid var(--line);
       padding: 0.85rem 1rem;
     }
-    input {
-      background: var(--panel);
-      color: var(--ink);
-    }
+    input { background: var(--panel); color: var(--ink); }
     button {
       background: var(--accent);
       color: #082014;
@@ -62,9 +59,9 @@
     .panels {
       display: grid;
       gap: 1rem;
-      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-columns: 1.1fr 0.9fr;
     }
-    @media (max-width: 800px) {
+    @media (max-width: 900px) {
       form, .panels { grid-template-columns: 1fr; }
     }
     section {
@@ -72,9 +69,15 @@
       border: 1px solid var(--line);
       border-radius: 0.6rem;
       padding: 1rem 1.1rem;
-      min-height: 16rem;
+      min-height: 14rem;
     }
-    h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
     pre {
       white-space: pre-wrap;
       word-break: break-word;
@@ -82,6 +85,18 @@
       font-family: "IBM Plex Mono", Consolas, monospace;
       font-size: 0.85rem;
       line-height: 1.45;
+    }
+    #map-frame {
+      width: 100%;
+      min-height: 220px;
+      border: 1px solid var(--line);
+      border-radius: 0.4rem;
+      background: #101a15;
+    }
+    footer {
+      margin-top: 1.5rem;
+      color: var(--muted);
+      font-size: 0.8rem;
     }
   </style>
 </head>
@@ -97,29 +112,78 @@
       <section>
         <h2>Answer</h2>
         <pre id="answer">Waiting…</pre>
+        <h2 style="margin-top:1rem">Map</h2>
+        <iframe id="map-frame" title="map preview"></iframe>
       </section>
       <section>
         <h2>Trace</h2>
         <pre id="trace">Waiting…</pre>
       </section>
     </div>
+    <footer id="attribution">Map data © OpenStreetMap contributors (ODbL).</footer>
   </main>
   <script>
     const form = document.getElementById("ask-form");
     const answerEl = document.getElementById("answer");
     const traceEl = document.getElementById("trace");
+    const mapFrame = document.getElementById("map-frame");
+    const attributionEl = document.getElementById("attribution");
+
+    function artifactUrl(path) {
+      if (!path) return "";
+      const normalized = String(path).replace(/\\\\/g, "/");
+      const marker = "/artifacts/";
+      const idx = normalized.lastIndexOf(marker);
+      if (idx >= 0) return normalized.slice(idx);
+      const demo = normalized.indexOf("artifacts/demo/");
+      if (demo >= 0) return "/" + normalized.slice(demo);
+      return "";
+    }
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       answerEl.textContent = "Running swarm…";
       traceEl.textContent = "";
+      mapFrame.removeAttribute("src");
       const question = document.getElementById("question").value;
-      const res = await fetch("/v1/ask", {
+      const res = await fetch("/v1/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Accept": "text/event-stream" },
         body: JSON.stringify({ question }),
       });
-      const data = await res.json();
-      const fa = data.final_answer || {};
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalPayload = null;
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split("\\n\\n");
+        buffer = chunks.pop() || "";
+        for (const chunk of chunks) {
+          const lines = chunk.split("\\n");
+          let eventName = "message";
+          let dataLine = "";
+          for (const line of lines) {
+            if (line.startsWith("event:")) eventName = line.slice(6).trim();
+            if (line.startsWith("data:")) dataLine += line.slice(5).trim();
+          }
+          if (!dataLine) continue;
+          const payload = JSON.parse(dataLine);
+          if (eventName === "event") {
+            const agent = payload.agent ? " @" + payload.agent : "";
+            traceEl.textContent += `${payload.type || "event"}${agent} ${JSON.stringify(payload.payload || payload)}\\n`;
+          }
+          if (eventName === "done") finalPayload = payload;
+        }
+      }
+      if (!finalPayload) {
+        answerEl.textContent = "No SSE done event received.";
+        return;
+      }
+      const fa = finalPayload.final_answer || {};
+      if (finalPayload.attribution) attributionEl.textContent = finalPayload.attribution;
       answerEl.textContent = [
         `status: ${fa.status}`,
         "",
@@ -129,10 +193,12 @@
         JSON.stringify(fa.numbers || [], null, 2),
         "",
         `map: ${fa.map_artifact || "none"}`,
-      ].join("\n");
-      traceEl.textContent = (data.events || [])
-        .map((e) => `${e.type}${e.agent ? " @" + e.agent : ""} ${JSON.stringify(e.payload)}`)
-        .join("\n");
+      ].join("\\n");
+      const url = artifactUrl(fa.map_artifact);
+      if (url) {
+        const htmlGuess = url.replace(/\\.png$/i, ".html").replace(/\\.geojson$/i, ".html");
+        mapFrame.src = htmlGuess;
+      }
     });
   </script>
 </body>

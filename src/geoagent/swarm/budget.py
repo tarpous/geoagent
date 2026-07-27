@@ -13,6 +13,7 @@ class Budgets:
     max_tool_calls_per_specialist: int = 8
     max_swarm_steps: int = 24
     structured_output_repair_retries: int = 1
+    max_reflections: int = 1
 
 
 def load_budgets(config_path: Path | None = None) -> Budgets:
@@ -24,4 +25,5 @@ def load_budgets(config_path: Path | None = None) -> Budgets:
         max_tool_calls_per_specialist=int(raw.get("max_tool_calls_per_specialist", 8)),
         max_swarm_steps=int(raw.get("max_swarm_steps", 24)),
         structured_output_repair_retries=int(raw.get("structured_output_repair_retries", 1)),
+        max_reflections=int(raw.get("max_reflections", 1)),
     )

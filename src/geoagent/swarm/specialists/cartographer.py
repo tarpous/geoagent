@@ -4,16 +4,21 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from geoagent.tools.mapping import make_map
-from geoagent.swarm.handoffs import handoff_to
+from geoagent.swarm.policy import transfer_control
 from geoagent.swarm.state import TeamState
+from geoagent.swarm.tool_allowlists import assert_tool_allowed
+from geoagent.tools.mapping import make_map
 
 ROOT = Path(__file__).resolve().parents[4]
 
 
-def run_cartographer(state: TeamState) -> TeamState:
+def work_cartographer(state: TeamState) -> TeamState:
     out_dir = ROOT / "artifacts" / "demo" / state.trace_id
-    layers = [{"name": g.get("name", "layer"), "geojson": g["geojson"]} for g in state.geometries if "geojson" in g]
+    layers = [
+        {"name": g.get("name", "layer"), "geojson": g["geojson"]}
+        for g in state.geometries
+        if "geojson" in g
+    ]
     if not layers:
         layers = [
             {
@@ -21,6 +26,7 @@ def run_cartographer(state: TeamState) -> TeamState:
                 "geojson": {"type": "Point", "coordinates": [23.72, 37.98]},
             }
         ]
+    assert_tool_allowed("cartographer", "make_map")
     artifacts = make_map(layers, out_dir=out_dir, name="map")
     state.tool_calls += 1
     state.evidence.append(
@@ -41,4 +47,13 @@ def run_cartographer(state: TeamState) -> TeamState:
             "Assembled geospatial evidence for the question using spatial, imagery, "
             "and document tools. See numbers and citations in the structured answer."
         )
-    return handoff_to(state, "critic", "Draft ready for validation")
+    return state
+
+
+def run_cartographer(state: TeamState, *, transfer: bool = True) -> TeamState:
+    state = work_cartographer(state)
+    if not transfer:
+        if state.active_agent not in state.visited_agents:
+            state.visited_agents.append(state.active_agent)
+        return state
+    return transfer_control(state, from_agent="cartographer")

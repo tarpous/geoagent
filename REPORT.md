@@ -8,7 +8,7 @@ PostGIS/OSM analysis, and planning documents. The shared contract is a validated
 
 ## Architecture
 
-- Swarm specialists: intake → geodata → earth-obs → librarian → cartographer → critic
+- Swarm specialists: true peer swarm — `transfer_to_*` handoff tools, parallel earth-obs∥librarian join after geodata, topology-guarded (no commander)
 - Single-agent baseline for ablation only
 - Tools: geocode, allowlisted spatial SQL, STAC/NDVI fixtures, land-cover, detections,
   docs_search, make_map
@@ -43,10 +43,11 @@ See `NOTICE`, `data/osm/ATTRIBUTION`, `data/corpus_manifest.csv`, and
 ## Limits
 
 - Default imagery/land-cover/detect paths are fixture-backed until pinned ONNX/STAC
-  weights are downloaded
+  weights are downloaded (**GPU/weight gated**)
 - Live LLM backends (llama.cpp / vLLM) are configured but not required for the
-  deterministic demo path
+  deterministic demo path (**GPU gated**)
 - Human audit κ uses placeholder labels until review
+- Map artifacts always include GeoJSON + HTML + PNG on CPU; Folium HTML is optional
 
 ## Reproduce
 

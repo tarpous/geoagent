@@ -1,16 +1,22 @@
 {
   "mode": "swarm",
   "n": 8,
-  "mean_score": 0.8458333333333333,
-  "status_pass_rate": 0.875,
+  "mean_score": 1.0,
+  "status_pass_rate": 1.0,
   "rows": [
     {
       "id": "m0-spatial-attica-buffer",
       "mode": "swarm",
       "status_ok": true,
-      "tool_recall": 0.0,
-      "score": 0.6,
-      "answer_status": "answered"
+      "tool_recall": 1.0,
+      "score": 1.0,
+      "answer_status": "answered",
+      "tools_seen": [
+        "docs_search",
+        "geocode",
+        "make_map",
+        "spatial_sql"
+      ]
     },
     {
       "id": "m0-imagery-ndvi-attica",
@@ -18,15 +24,30 @@
       "status_ok": true,
       "tool_recall": 1.0,
       "score": 1.0,
-      "answer_status": "answered"
+      "answer_status": "answered",
+      "tools_seen": [
+        "docs_search",
+        "geocode",
+        "make_map",
+        "spatial_sql",
+        "stac_imagery"
+      ]
     },
     {
       "id": "m0-landcover-tree-loss",
       "mode": "swarm",
       "status_ok": true,
-      "tool_recall": 0.6666666666666666,
-      "score": 0.8666666666666667,
-      "answer_status": "answered"
+      "tool_recall": 1.0,
+      "score": 1.0,
+      "answer_status": "answered",
+      "tools_seen": [
+        "docs_search",
+        "geocode",
+        "landcover_classify",
+        "make_map",
+        "spatial_sql",
+        "stac_imagery"
+      ]
     },
     {
       "id": "m0-detect-vehicles",
@@ -34,7 +55,15 @@
       "status_ok": true,
       "tool_recall": 1.0,
       "score": 1.0,
-      "answer_status": "answered"
+      "answer_status": "answered",
+      "tools_seen": [
+        "detect_objects",
+        "docs_search",
+        "geocode",
+        "make_map",
+        "spatial_sql",
+        "stac_imagery"
+      ]
     },
     {
       "id": "m0-rag-flood-attica",
@@ -42,7 +71,13 @@
       "status_ok": true,
       "tool_recall": 1.0,
       "score": 1.0,
-      "answer_status": "answered"
+      "answer_status": "answered",
+      "tools_seen": [
+        "docs_search",
+        "geocode",
+        "make_map",
+        "spatial_sql"
+      ]
     },
     {
       "id": "m0-rag-thessaloniki",
@@ -50,23 +85,38 @@
       "status_ok": true,
       "tool_recall": 1.0,
       "score": 1.0,
-      "answer_status": "answered"
+      "answer_status": "answered",
+      "tools_seen": [
+        "docs_search",
+        "geocode",
+        "make_map",
+        "spatial_sql"
+      ]
     },
     {
       "id": "m0-multi-map",
       "mode": "swarm",
       "status_ok": true,
-      "tool_recall": 0.75,
-      "score": 0.9,
-      "answer_status": "answered"
+      "tool_recall": 1.0,
+      "score": 1.0,
+      "answer_status": "answered",
+      "tools_seen": [
+        "docs_search",
+        "geocode",
+        "landcover_classify",
+        "make_map",
+        "spatial_sql",
+        "stac_imagery"
+      ]
     },
     {
       "id": "m0-refusal-out-of-aoi",
       "mode": "swarm",
-      "status_ok": false,
+      "status_ok": true,
       "tool_recall": 1.0,
-      "score": 0.4,
-      "answer_status": "answered"
+      "score": 1.0,
+      "answer_status": "refused",
+      "tools_seen": []
     }
   ]
 }

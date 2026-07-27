@@ -20,25 +20,42 @@ from geoagent.tools import (
 )
 
 mcp = FastMCP("geoagent")
+_TRACE_STORE: dict[str, dict[str, Any]] = {}
 
 
 @mcp.tool()
 def ask_swarm(question: str) -> str:
     """Run the full geospatial analyst swarm and return FinalAnswer JSON."""
     answer, trace = run_swarm_with_trace(question)
-    return json.dumps(
-        {
-            "final_answer": answer.model_dump(mode="json"),
-            "tool_call_parse_rate": trace.tool_call_parse_rate,
-            "schema_ok": trace.schema_ok,
-            "events": trace.events,
-        }
-    )
+    payload = {
+        "final_answer": answer.model_dump(mode="json"),
+        "tool_call_parse_rate": trace.tool_call_parse_rate,
+        "schema_ok": trace.schema_ok,
+        "events": trace.events,
+        "trace_id": answer.trace_id,
+    }
+    _TRACE_STORE[answer.trace_id] = {
+        "events": trace.events,
+        "handoffs": trace.handoffs,
+        "tool_calls": trace.tool_calls,
+        "schema_ok": trace.schema_ok,
+        "tool_call_parse_rate": trace.tool_call_parse_rate,
+    }
+    return json.dumps(payload)
+
+
+@mcp.tool()
+def show_trace(trace_id: str) -> str:
+    """Return swarm events/handoffs for a prior ask_swarm trace_id."""
+    payload = _TRACE_STORE.get(trace_id)
+    if payload is None:
+        return json.dumps({"ok": False, "error": "unknown_trace_id", "trace_id": trace_id})
+    return json.dumps({"ok": True, "trace_id": trace_id, **payload})
 
 
 @mcp.tool()
 def tool_geocode(query: str) -> str:
-    result = geocode(query, require_demo_aoi=True)
+    result = geocode(query, require_demo_aoi=True, allow_network=False)
     return json.dumps(result.__dict__, default=str)
 
 

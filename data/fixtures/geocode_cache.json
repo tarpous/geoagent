@@ -1,0 +1,20 @@
+{
+  "athens attica greece": {
+    "display_name": "Athens, Attica, Greece",
+    "lon": 23.7275,
+    "lat": 37.9838,
+    "backend": "fixture"
+  },
+  "thessaloniki greece": {
+    "display_name": "Thessaloniki, Greece",
+    "lon": 22.9444,
+    "lat": 40.6401,
+    "backend": "fixture"
+  },
+  "port of thessaloniki": {
+    "display_name": "Port of Thessaloniki",
+    "lon": 22.935,
+    "lat": 40.635,
+    "backend": "fixture"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Attica ring road sample",
+        "highway": "motorway",
+        "aoi": "Attica",
+        "source": "synthetic-odbl-fixture"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [23.70, 37.96],
+          [23.72, 37.98],
+          [23.75, 38.00],
+          [23.78, 38.01]
+        ]
+      }
+    }
+  ]
+}

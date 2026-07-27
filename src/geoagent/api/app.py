@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -14,6 +15,12 @@ from pydantic import BaseModel, Field
 from geoagent.swarm import run_swarm_with_trace
 
 UI_DIR = Path(__file__).resolve().parent / "ui"
+ROOT = Path(__file__).resolve().parents[3]
+ARTIFACTS_DIR = ROOT / "artifacts"
+ATTRIBUTION = (
+    "Map data © OpenStreetMap contributors (ODbL). "
+    "See data/osm/ATTRIBUTION."
+)
 
 
 class ChatRequest(BaseModel):
@@ -28,6 +35,10 @@ def create_app() -> FastAPI:
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    @app.get("/v1/attribution")
+    def attribution() -> dict[str, str]:
+        return {"attribution": ATTRIBUTION}
+
     @app.post("/v1/chat")
     def chat(req: ChatRequest) -> StreamingResponse:
         def event_stream() -> Iterator[str]:
@@ -38,6 +49,7 @@ def create_app() -> FastAPI:
                 "final_answer": answer.model_dump(mode="json"),
                 "tool_call_parse_rate": trace.tool_call_parse_rate,
                 "schema_ok": trace.schema_ok,
+                "attribution": ATTRIBUTION,
             }
             yield _sse("done", payload)
 
@@ -51,7 +63,11 @@ def create_app() -> FastAPI:
             "events": trace.events,
             "tool_call_parse_rate": trace.tool_call_parse_rate,
             "schema_ok": trace.schema_ok,
+            "attribution": ATTRIBUTION,
         }
+
+    if ARTIFACTS_DIR.is_dir():
+        app.mount("/artifacts", StaticFiles(directory=ARTIFACTS_DIR), name="artifacts")
 
     if UI_DIR.is_dir():
         app.mount("/static", StaticFiles(directory=UI_DIR), name="static")

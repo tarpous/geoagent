@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -14,13 +13,13 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("judge", help="Run deterministic judge")
     sub.add_parser("calibrate", help="Compute κ calibration report")
     sub.add_parser("ablation", help="Swarm vs single ablation")
+    sub.add_parser("retrieval", help="Offline retrieval recall@k")
     args = parser.parse_args(argv)
 
     if args.cmd == "handoff":
-        from evals.agent_evals import evaluate_hero_handoff
+        from evals.agent_evals import main as handoff_main
 
-        print(json.dumps(evaluate_hero_handoff(), indent=2))
-        return 0
+        return handoff_main()
     if args.cmd == "golden":
         from evals.factory.golden_v1 import main as golden_main
 
@@ -37,6 +36,10 @@ def main(argv: list[str] | None = None) -> int:
         from evals.run_ablation import main as ablation_main
 
         return ablation_main()
+    if args.cmd == "retrieval":
+        from evals.retrieval_evals import main as retrieval_main
+
+        return retrieval_main()
     return 2
 
 

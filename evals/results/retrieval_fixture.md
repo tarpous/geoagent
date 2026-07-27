@@ -1,11 +1,10 @@
-# Retrieval ablation (fixture / offline)
+# Retrieval fixture eval
 
-Measured on the committed markdown fixture corpus with the in-memory hybrid
-retriever (lexical + dense-proxy RRF) and overlap rerank.
+- recall@5: **1.00**
+- queries: 3
 
-| Method | recall@5 |
+| query | hit |
 |---|---|
-| dense-only | see `tests/test_retrieval_evals.py` |
-| hybrid + rerank | must be >= dense-only (CI gate) |
-
-Postgres FTS + pgvector + BGE-M3 remain the production path once compose is available.
+| tree cover ring road | True |
+| flood planning Attica | True |
+| agricultural land | True |

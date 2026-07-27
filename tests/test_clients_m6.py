@@ -38,6 +38,18 @@ def test_api_sse_chat():
     assert "final_answer" in body
 
 
+def test_api_out_of_aoi_refusal():
+    client = TestClient(create_app())
+    res = client.post(
+        "/v1/ask",
+        json={"question": "Measure mangrove loss near Singapore since 2020."},
+    )
+    assert res.status_code == 200
+    answer = res.json()["final_answer"]
+    assert answer["status"] == "refused"
+    assert answer["refusal"]["reason_code"] == "out_of_aoi"
+
+
 def test_tui_local_once():
     payload = run_local("How much tree cover was lost within 2 km of the new ring road since 2023?")
     assert payload["schema_ok"] is True
@@ -48,5 +60,6 @@ def test_mcp_registers_ask_swarm_and_tools():
     tools = mcp._tool_manager.list_tools()  # noqa: SLF001 - smoke check registration
     names = {t.name for t in tools}
     assert "ask_swarm" in names
+    assert "show_trace" in names
     assert "tool_docs_search" in names
     assert "tool_landcover" in names

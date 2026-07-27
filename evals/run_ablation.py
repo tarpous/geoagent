@@ -85,8 +85,8 @@ def run_ablation(questions: list[str] | None = None) -> dict:
             [
                 "# Swarm vs single-agent ablation",
                 "",
-                f"| Mode | mean score |",
-                f"|---|---|",
+                "| Mode | mean score |",
+                "|---|---|",
                 f"| swarm | {swarm_mean:.3f} |",
                 f"| single | {single_mean:.3f} |",
                 f"| delta (swarm - single) | {swarm_mean - single_mean:.3f} |",

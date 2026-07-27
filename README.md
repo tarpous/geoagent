@@ -1,50 +1,91 @@
 # geoagent
 
-Local-first geospatial analyst swarm. Ask multi-tool questions over maps, satellite imagery, PostGIS/OSM data, and planning documents; get evidence-backed answers with citations, quantities, geometries, and map artifacts.
+Local-first geospatial analyst swarm. Ask questions over maps, satellite imagery, PostGIS/OSM data, and planning documents; get an evidence-backed `FinalAnswer` with citations, quantities, geometries, and map artifacts.
 
-Repository: https://github.com/tarpous/geoagent
+No cloud chat APIs are required at runtime. Demo regions: Attica and Thessaloniki.
 
-## Clients
+**Hero question:** *How much tree cover was lost within 2 km of the new ring road since 2023?*
 
-One shared swarm session API and one `FinalAnswer` contract:
+## What you get
 
-- Custom Python TUI
-- FastAPI web UI with SSE traces and map preview
-- MCP server (`ask_swarm` + geospatial tools)
+| Surface | Entry |
+| --- | --- |
+| Swarm session API | `POST /v1/ask`, `POST /v1/chat` (SSE) |
+| Web UI | FastAPI static UI + trace + map preview |
+| Terminal | `geoagent tui` |
+| MCP | `geoagent mcp` (`ask_swarm` + geospatial tools) |
+| Optional Pi client | `clients/pi_chat/` (HTTP only; not a coding agent) |
 
-## Runtime
+All clients share one swarm core and one `FinalAnswer` contract.
 
-- Default LLM backend: custom `llama.cpp` server
-- Serving / ablation backend: vLLM
-- No cloud chat APIs in the default path
-- Demo AOIs: Attica and Thessaloniki
-- Hero path: tree-cover loss within 2 km of a ring road since 2023
+## Swarm architecture
 
-## Quick start
+Peer handoff swarm (no supervisor):
+
+- Specialists: `intake` → `geodata` → (`earth-obs` ∥ `librarian`) → `cartographer` → `critic`
+- Control moves via `transfer_to_*` handoff tools (topology-guarded)
+- Parallel fan-out/join after geodata when imagery and documents are both needed
+- Critic may bounce work back **once** (bounded reflection)
+- Single-agent baseline exists only for ablation
+
+Offline/CI path is deterministic (fixtures, no GPU). Live local LLMs (llama.cpp default, vLLM ablation) are optional and capped at ~15B parameters.
+
+Details: [`docs/architecture.md`](docs/architecture.md) · full spec: [`05-geoagent-agentic-rag.md`](05-geoagent-agentic-rag.md) · context: [`AGENTS.md`](AGENTS.md)
+
+## Quick start (CPU / fixtures)
+
+Requires Python 3.12 and [uv](https://github.com/astral-sh/uv).
 
 ```bash
-# create / use the repo venv (Python 3.12)
 uv sync --python 3.12 --extra dev
-
-# dry-run demo against fixtures (M0+)
-make demo
+make demo          # Attica hero path → artifacts/demo/<trace_id>/
+make test          # offline pytest
 ```
 
-See `AGENTS.md` for project context and `05-geoagent-agentic-rag.md` for the full specification.
+Useful commands:
+
+```bash
+make api           # http://127.0.0.1:8088
+make tui
+make mcp
+make db-up         # PostGIS + pgvector (Docker)
+make db-ingest
+make evals
+make model-plan    # print download plan only (does not fetch weights)
+```
+
+Environment knobs:
+
+| Variable | Meaning |
+| --- | --- |
+| `GEOAGENT_SWARM_RUNTIME=loop` | Default peer-swarm loop |
+| `GEOAGENT_SWARM_RUNTIME=langgraph` | Same specialists via LangGraph |
+| `GEOAGENT_DATABASE_URL` | Postgres URL for hybrid RAG |
+
+Copy `.env.example` for local overrides. Never commit `.env`, model weights, or `.venv`.
+
+## Repository layout
+
+```text
+src/geoagent/   swarm, tools, rag, api, tui, mcp, schemas, llm
+clients/        optional Pi-chat HTTP client
+configs/        model profiles, budgets, seeds
+deploy/         Compose (db + api), Dockerfiles
+data/           fixtures, corpus manifests, OSM attribution
+evals/          factory, golden@v1, judges, metrics
+prompts/        versioned specialist prompts
+tests/          unit, geo, integration, safety
+docs/           architecture and geospatial notes
+```
 
 ## Status
 
-- **M0a** — package layout, locked configs, provenance stubs, demo dry-run
-- **M0b** — `FinalAnswer` schemas, geo validators, structured-output repair path
-- **M0c** — llama.cpp/vLLM launch scripts, golden seed factory (10 items), swarm budgets
-- **M1a** — fixture-backed chunkers, hybrid RRF retriever, offline recall@5 gate
-- **M1b** — Compose PostGIS/pgvector schema, Postgres hybrid retriever, corpus ingest
-- **M2a** — geocode (cached), allowlisted spatial SQL, map GeoJSON/HTML artifacts
-- **M2b** — STAC/NDVI fixtures, land-cover + detections, docs_search tool
-- **M3a** — deterministic swarm handoffs for the Attica hero path → `FinalAnswer`
-- **M3b** — traces, handoff correctness, `tool_call_parse_rate`
-- **M4** — `golden@v1` (~100 items), audit slice, judge + κ calibration scaffolding
-- **M5** — single-agent baseline and swarm-vs-single ablation report
-- **M6** — FastAPI SSE/ask API, web UI, TUI, MCP (`ask_swarm` + tools)
-- **M7** — safety allowlist/injection tests + `REPORT.md`
+Shipped for the deterministic fixture path: schemas and geo validators, hybrid RAG (memory + Postgres), geospatial/imagery/doc tools, peer swarm with traces, `golden@v1` + swarm-vs-single ablation scaffolding, FastAPI/TUI/MCP clients, safety tests, offline CI, and `REPORT.md`.
 
+Still optional / gated on local GPU or installs: llama.cpp and vLLM servers, HF weight downloads, live ONNX weights, Pi SDK eval-factory runtime, LLM-as-judge.
+
+Reproduce notes and gates: [`REPORT.md`](REPORT.md) · licensing: [`NOTICE`](NOTICE)
+
+## License
+
+Apache-2.0. Third-party notices and data licenses are listed in `NOTICE` and under `data/` / `models/*/LICENSE*`.

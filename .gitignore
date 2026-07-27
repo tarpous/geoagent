@@ -15,6 +15,9 @@ dist/
 !.env.example
 .local/
 
+# Editor / agent workspace (local workflow only — do not publish)
+.cursor/
+
 # Downloaded models and Hugging Face caches
 models/**/*.gguf
 models/**/*.onnx

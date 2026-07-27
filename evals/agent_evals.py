@@ -9,6 +9,7 @@ from geoagent.swarm.graph import (
     HERO_HANDOFF_PATH,
     handoff_correctness,
     run_swarm_with_trace,
+    topology_validity,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -26,6 +27,7 @@ def evaluate_hero_handoff(
         "tool_call_parse_rate": trace.tool_call_parse_rate,
         "handoff_path": [h["to"] for h in trace.handoffs],
         "handoff_correctness": handoff_correctness(trace, HERO_HANDOFF_PATH),
+        "topology_validity": topology_validity(trace),
         "expected_path": HERO_HANDOFF_PATH,
         "tool_calls": len(trace.tool_calls),
         "numbers": [n.model_dump() for n in answer.numbers],
@@ -42,6 +44,7 @@ def main() -> int:
         report["schema_ok"]
         and report["tool_call_parse_rate"] >= 0.95
         and report["handoff_correctness"] >= 0.8
+        and report["topology_validity"] >= 1.0
     )
     return 0 if ok else 1
 

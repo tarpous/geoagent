@@ -20,8 +20,21 @@ services:
       timeout: 5s
       retries: 20
 
-  # Langfuse and the app service land in later milestones.
-  # LLM servers stay on the host GPU (host.docker.internal).
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: geoagent-api
+    environment:
+      GEOAGENT_DATABASE_URL: postgresql://geoagent:geoagent@db:5432/geoagent
+      GEOAGENT_SWARM_RUNTIME: loop
+      # LLM servers remain on the host when enabled later:
+      # LLM_BASE_URL: http://host.docker.internal:8080/v1
+    ports:
+      - "8088:8088"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   geoagent_pgdata:

@@ -155,3 +155,4 @@ budgets:
   max_tool_calls_per_specialist: 8
   max_swarm_steps: 24
   structured_output_repair_retries: 1
+  max_reflections: 1

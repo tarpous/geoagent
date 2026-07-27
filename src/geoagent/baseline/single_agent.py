@@ -6,7 +6,7 @@ from pathlib import Path
 
 import ulid
 
-from geoagent.schemas.answer import Citation, FinalAnswer, GeoRef, Quantity
+from geoagent.schemas.answer import Citation, FinalAnswer, GeoRef, Quantity, Refusal
 from geoagent.tools.detect import detection_summary
 from geoagent.tools.docs_search import docs_search
 from geoagent.tools.geocode import geocode
@@ -20,14 +20,30 @@ ROOT = Path(__file__).resolve().parents[3]
 
 def run_single_agent(question: str, *, trace_id: str | None = None) -> FinalAnswer:
     """Ablation baseline that calls the full tool set in one shot."""
+    import re
+
     tid = trace_id or str(ulid.new())
+    if re.search(r"singapore|mangrove|amazonas|california|sydney", question, re.I) and not re.search(
+        r"attica|athens|thessaloniki|salonika|ring\s*road", question, re.I
+    ):
+        return FinalAnswer(
+            trace_id=tid,
+            status="refused",
+            answer_md="",
+            refusal=Refusal(
+                reason_code="out_of_aoi",
+                message="Question is outside the Attica/Thessaloniki demo AOIs.",
+            ),
+            model_roster={"baseline": "deterministic-cpu"},
+        )
+
     warnings: list[str] = []
     numbers: list[Quantity] = []
     citations: list[Citation] = []
     geometries: list[GeoRef] = []
 
     try:
-        geo = geocode("Athens Attica Greece", require_demo_aoi=True)
+        geo = geocode("Athens Attica Greece", require_demo_aoi=True, allow_network=False)
         lon, lat = geo.lon, geo.lat
         geometries.append(GeoRef(name="geocode", geojson=geo.geojson))
     except Exception as exc:  # noqa: BLE001
@@ -96,5 +112,5 @@ def run_single_agent(question: str, *, trace_id: str | None = None) -> FinalAnsw
         geometries=geometries,
         map_artifact=artifacts.get("html") or artifacts.get("geojson"),
         warnings=warnings,
-        model_roster={"baseline": "deterministic-single"},
+        model_roster={"baseline": "deterministic-cpu"},
     )

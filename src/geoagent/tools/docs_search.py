@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from geoagent.rag.chunkers import structural_chunk
 from geoagent.rag.citations import citation_from_chunk
 from geoagent.rag.hybrid_retriever import InMemoryHybridRetriever
 from geoagent.rag.ingest import DEFAULT_CORPUS_DIR
-from geoagent.rag.chunkers import structural_chunk
 from geoagent.rag.postgres_retriever import PostgresHybridRetriever
 from geoagent.rag.reranker import rerank
 

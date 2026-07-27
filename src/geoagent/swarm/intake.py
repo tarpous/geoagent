@@ -4,18 +4,33 @@ from __future__ import annotations
 
 import re
 
-from geoagent.swarm.handoffs import handoff_to
+from geoagent.swarm.policy import transfer_control
 from geoagent.swarm.state import TeamState
 
 _ATTICA = re.compile(r"attica|athens|ring\s*road", re.I)
 _THESS = re.compile(r"thessaloniki|salonika", re.I)
-_TREE = re.compile(r"tree\s*cover|ndvi|land\s*cover", re.I)
-_DOC = re.compile(r"document|cite|planning|flood", re.I)
-_DETECT = re.compile(r"vehicle|building|detect", re.I)
+_OUT_OF_AOI = re.compile(r"singapore|mangrove|amazonas|california|sydney", re.I)
 
 
-def run_intake(state: TeamState) -> TeamState:
+def run_intake(state: TeamState, *, transfer: bool = True) -> TeamState:
     q = state.question
+    if _OUT_OF_AOI.search(q) and not (_ATTICA.search(q) or _THESS.search(q)):
+        from geoagent.schemas.answer import FinalAnswer, Refusal
+
+        state.final_answer = FinalAnswer(
+            trace_id=state.trace_id,
+            status="refused",
+            answer_md="",
+            refusal=Refusal(
+                reason_code="out_of_aoi",
+                message="Question is outside the Attica/Thessaloniki demo AOIs.",
+            ),
+            model_roster={"intake": "deterministic-m3"},
+        )
+        state.status = "refused"
+        state.active_agent = "critic"
+        return state
+
     if _THESS.search(q):
         state.aoi = "Thessaloniki"
     elif _ATTICA.search(q):
@@ -23,8 +38,6 @@ def run_intake(state: TeamState) -> TeamState:
     else:
         state.aoi = "Attica"
 
-    if _DOC.search(q) and not (_TREE.search(q) or _DETECT.search(q)):
-        return handoff_to(state, "librarian", "Document evidence required", aoi=state.aoi)
-    if _TREE.search(q) or _DETECT.search(q) or _ATTICA.search(q) or _THESS.search(q):
-        return handoff_to(state, "geodata", "Need AOI geometry before analysis", aoi=state.aoi)
-    return handoff_to(state, "geodata", "Spatial context required", aoi=state.aoi)
+    if not transfer:
+        return state
+    return transfer_control(state, from_agent="intake", extra_delta={"aoi": state.aoi})

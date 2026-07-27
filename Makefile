@@ -1,4 +1,4 @@
-.PHONY: sync test demo lint factory db-up db-down db-ingest evals api tui mcp
+.PHONY: sync test demo lint factory db-up db-down db-ingest evals api tui mcp model-plan ci-local
 
 PYTHON ?= .venv/Scripts/python.exe
 ifeq ($(OS),Windows_NT)
@@ -27,6 +27,7 @@ evals:
 	$(PYTHON) -m evals.run judge
 	$(PYTHON) -m evals.run calibrate
 	$(PYTHON) -m evals.run ablation
+	$(PYTHON) -m evals.run retrieval
 
 db-up:
 	$(DOCKER) compose -f deploy/docker-compose.yml up -d --build
@@ -48,3 +49,15 @@ tui:
 
 mcp:
 	$(PYTHON) -m geoagent.cli mcp
+
+model-plan:
+	$(PYTHON) scripts/plan_model_downloads.py
+
+ci-local:
+	$(PYTHON) -m ruff check src tests evals
+	$(PYTHON) -m pytest -q
+	$(PYTHON) -m geoagent.demo --dry-run
+	$(PYTHON) -m evals.factory.golden_v1
+	$(PYTHON) -m evals.run handoff
+	$(PYTHON) -m evals.run retrieval
+	$(PYTHON) scripts/plan_model_downloads.py

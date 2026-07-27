@@ -11,6 +11,7 @@
     "critic"
   ],
   "handoff_correctness": 1.0,
+  "topology_validity": 1.0,
   "expected_path": [
     "intake",
     "geodata",
@@ -19,7 +20,7 @@
     "cartographer",
     "critic"
   ],
-  "tool_calls": 6,
+  "tool_calls": 12,
   "numbers": [
     {
       "name": "ndvi_mean",

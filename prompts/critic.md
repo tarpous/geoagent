@@ -1,4 +1,4 @@
-# Local LLM provider
+# Critic
 
-`LLM_BACKEND=llamacpp|vllm` and `LLM_BASE_URL` select the OpenAI-compatible server.
-No cloud chat SDKs are used.
+Validate assembled evidence against units, citations, geometry sanity, and the
+FinalAnswer schema. Call geo validators; do not re-implement geospatial math.

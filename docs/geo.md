@@ -10,4 +10,5 @@ Executable rules (enforced in `tests/geo/` and tool wrappers):
 | Geometry sanity | Reject empty, NaN, non-finite coords; bbox must intersect demo AOIs unless opted out |
 | Time | Imagery/stats declare timezone (UTC) and inclusive date bounds |
 
-The critic calls these validators; it does not re-implement geo math in prose.
+Offline spatial buffers/distances use a local EPSG:2100-style approximation when
+PostGIS is unavailable. OSM demo layers live under `data/fixtures/osm/` (ODbL attribution).
