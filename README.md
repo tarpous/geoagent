@@ -46,4 +46,5 @@ See `AGENTS.md` for project context and `05-geoagent-agentic-rag.md` for the ful
 - **M4** — `golden@v1` (~100 items), audit slice, judge + κ calibration scaffolding
 - **M5** — single-agent baseline and swarm-vs-single ablation report
 - **M6** — FastAPI SSE/ask API, web UI, TUI, MCP (`ask_swarm` + tools)
+- **M7** — safety allowlist/injection tests + `REPORT.md`
 
