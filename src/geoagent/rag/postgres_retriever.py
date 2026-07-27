@@ -29,7 +29,9 @@ class PostgresHybridRetriever:
             return [(row[0], float(row[1])) for row in cur.fetchall()]
 
     def _fetch_dense(self, query: str, limit: int) -> list[tuple[str, float]]:
-        embedding = embed_text(query)
+        from pgvector import Vector
+
+        embedding = Vector(embed_text(query))
         sql = """
             SELECT chunk_id, 1 - (embedding <=> %s) AS score
             FROM chunks

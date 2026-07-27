@@ -27,6 +27,8 @@ def ingest_corpus(
     corpus_dir: Path = DEFAULT_CORPUS_DIR,
     dsn: str | None = None,
 ) -> dict[str, int]:
+    from pgvector import Vector
+
     rows = list(csv.DictReader(manifest_path.open(encoding="utf-8")))
     docs = 0
     chunks = 0
@@ -58,7 +60,7 @@ def ingest_corpus(
                 docs += 1
                 cur.execute("DELETE FROM chunks WHERE doc_id = %s", (doc_id,))
                 for chunk in structural_chunk(doc_id, body):
-                    embedding = embed_text(chunk.text)
+                    embedding = Vector(embed_text(chunk.text))
                     cur.execute(
                         """
                         INSERT INTO chunks (

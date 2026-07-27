@@ -26,5 +26,8 @@ def connect(dsn: str | None = None):
 
     settings = DatabaseSettings.from_env() if dsn is None else DatabaseSettings(dsn=dsn)
     conn = psycopg.connect(settings.dsn)
+    with conn.cursor() as cur:
+        cur.execute("CREATE EXTENSION IF NOT EXISTS vector")
+    conn.commit()
     register_vector(conn)
     return conn
