@@ -13,6 +13,7 @@ import yaml
 
 from evals.factory.seed import DEFAULT_OUT, build_seed_items, write_jsonl
 from geoagent.schemas import Citation, FinalAnswer, Quantity
+from geoagent.swarm import run_swarm
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / "configs" / "models.yaml"
@@ -53,8 +54,19 @@ def _sample_final_answer() -> FinalAnswer:
 
 def run_demo(*, dry_run: bool = False) -> int:
     if not dry_run:
-        print("Live demo is not available until later milestones. Use --dry-run for M0.")
-        return 2
+        answer = run_swarm(HERO_QUESTION)
+        summary = {
+            "mode": "live-swarm",
+            "question": HERO_QUESTION,
+            "status": answer.status,
+            "trace_id": answer.trace_id,
+            "numbers": [n.model_dump() for n in answer.numbers],
+            "citations": len(answer.citations),
+            "map_artifact": str(answer.map_artifact) if answer.map_artifact else None,
+            "warnings": answer.warnings,
+        }
+        print(json.dumps(summary, indent=2))
+        return 0 if answer.status in {"answered", "degraded"} else 1
 
     for required in (CONFIG_PATH, CORPUS_MANIFEST, FIXTURE_MARKER):
         if not required.is_file():
@@ -71,6 +83,8 @@ def run_demo(*, dry_run: bool = False) -> int:
     items = build_seed_items()
     write_jsonl(DEFAULT_OUT, items)
     answer = _sample_final_answer()
+    # Also exercise the deterministic swarm on fixtures during dry-run.
+    live = run_swarm(HERO_QUESTION)
 
     summary = {
         "mode": "dry-run",
@@ -81,6 +95,10 @@ def run_demo(*, dry_run: bool = False) -> int:
         "roles": sorted(profile.get("roles", {}).keys()),
         "golden_seed": {"path": str(DEFAULT_OUT.relative_to(ROOT)), "count": len(items)},
         "final_answer_status": answer.status,
+        "swarm_status": live.status,
+        "swarm_tree_cover_loss_ha": next(
+            (n.value for n in live.numbers if n.name == "tree_cover_loss"), None
+        ),
         "status": "ok",
     }
     print(json.dumps(summary, indent=2))
