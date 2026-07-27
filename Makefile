@@ -1,10 +1,12 @@
-.PHONY: sync test demo lint factory
+.PHONY: sync test demo lint factory db-up db-down db-ingest
 
 PYTHON ?= .venv/Scripts/python.exe
 ifeq ($(OS),Windows_NT)
   PYTHON := .venv/Scripts/python.exe
+  DOCKER := $(LOCALAPPDATA)/Programs/DockerDesktop/resources/bin/docker.exe
 else
   PYTHON := .venv/bin/python
+  DOCKER := docker
 endif
 
 sync:
@@ -18,6 +20,15 @@ lint:
 
 factory:
 	$(PYTHON) -m evals.factory.seed
+
+db-up:
+	$(DOCKER) compose -f deploy/docker-compose.yml up -d --build
+
+db-down:
+	$(DOCKER) compose -f deploy/docker-compose.yml down
+
+db-ingest:
+	$(PYTHON) -m geoagent.rag.ingest
 
 demo:
 	$(PYTHON) -m geoagent.demo --dry-run

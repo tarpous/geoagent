@@ -1,0 +1,27 @@
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    image: geoagent-postgis-pgvector:16
+    container_name: geoagent-db
+    environment:
+      POSTGRES_USER: geoagent
+      POSTGRES_PASSWORD: geoagent
+      POSTGRES_DB: geoagent
+    ports:
+      - "5432:5432"
+    volumes:
+      - geoagent_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geoagent -d geoagent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Langfuse and the app service land in later milestones.
+  # LLM servers stay on the host GPU (host.docker.internal).
+
+volumes:
+  geoagent_pgdata:
