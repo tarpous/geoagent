@@ -2,6 +2,8 @@
 
 Local-first geospatial analyst swarm. Ask multi-tool questions over maps, satellite imagery, PostGIS/OSM data, and planning documents; get evidence-backed answers with citations, quantities, geometries, and map artifacts.
 
+Repository: https://github.com/tarpous/geoagent-swarm
+
 ## Clients
 
 One shared swarm session API and one `FinalAnswer` contract:
@@ -36,5 +38,6 @@ See `AGENTS.md` for project context and `05-geoagent-agentic-rag.md` for the ful
 - **M0b** — `FinalAnswer` schemas, geo validators, structured-output repair path
 - **M0c** — llama.cpp/vLLM launch scripts, golden seed factory (10 items), swarm budgets
 - **M1a** — fixture-backed chunkers, hybrid RRF retriever, offline recall@5 gate
-- **M1b** — Compose PostGIS/pgvector schema, Postgres hybrid retriever, corpus ingest (engine start pending WSL)
+- **M1b** — Compose PostGIS/pgvector schema, Postgres hybrid retriever, corpus ingest
+- **M2a** — geocode (cached), allowlisted spatial SQL, map GeoJSON/HTML artifacts
 
