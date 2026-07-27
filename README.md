@@ -2,7 +2,7 @@
 
 Local-first geospatial analyst swarm. Ask multi-tool questions over maps, satellite imagery, PostGIS/OSM data, and planning documents; get evidence-backed answers with citations, quantities, geometries, and map artifacts.
 
-Repository: https://github.com/tarpous/geoagent-swarm
+Repository: https://github.com/tarpous/geoagent
 
 ## Clients
 

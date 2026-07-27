@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-REPO = "tarpous/geoagent-swarm"
+REPO = "tarpous/geoagent"
 API = "https://api.github.com"
 ROOT = Path(__file__).resolve().parents[1]
 
