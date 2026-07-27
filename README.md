@@ -32,4 +32,6 @@ See `AGENTS.md` for project context and `05-geoagent-agentic-rag.md` for the ful
 
 ## Status
 
-Milestone 0 scaffolding is in progress: contracts, configs, provenance stubs, and package layout.
+- **M0a** — package layout, locked configs, provenance stubs, demo dry-run
+- **M0b** — `FinalAnswer` schemas, geo validators, structured-output repair path (local; pending push)
+

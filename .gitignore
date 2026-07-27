@@ -13,6 +13,7 @@ dist/
 .env
 .env.*
 !.env.example
+.local/
 
 # Downloaded models and Hugging Face caches
 models/**/*.gguf
