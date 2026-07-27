@@ -40,4 +40,5 @@ See `AGENTS.md` for project context and `05-geoagent-agentic-rag.md` for the ful
 - **M1a** — fixture-backed chunkers, hybrid RRF retriever, offline recall@5 gate
 - **M1b** — Compose PostGIS/pgvector schema, Postgres hybrid retriever, corpus ingest
 - **M2a** — geocode (cached), allowlisted spatial SQL, map GeoJSON/HTML artifacts
+- **M2b** — STAC/NDVI fixtures, land-cover + detections, docs_search tool
 

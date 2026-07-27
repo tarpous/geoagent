@@ -1,0 +1,15 @@
+{
+  "notes": "Known-positive detections for offline object-detection tests.",
+  "scenes": {
+    "default": [
+      {"label": "vehicle", "score": 0.91, "bbox_xyxy": [10, 12, 40, 38]},
+      {"label": "vehicle", "score": 0.77, "bbox_xyxy": [55, 18, 90, 44]},
+      {"label": "building", "score": 0.88, "bbox_xyxy": [100, 20, 180, 110]}
+    ],
+    "attica-ringroad-2024-06": [
+      {"label": "vehicle", "score": 0.86, "bbox_xyxy": [15, 20, 42, 48]},
+      {"label": "building", "score": 0.93, "bbox_xyxy": [60, 30, 150, 120]},
+      {"label": "building", "score": 0.71, "bbox_xyxy": [160, 40, 210, 100]}
+    ]
+  }
+}
