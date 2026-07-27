@@ -1,7 +1,7 @@
 """Hero demo entrypoint.
 
-M0 dry-run validates locked config, fixture paths, and package wiring without
-calling LLM backends or live geospatial services.
+M0 dry-run validates locked config, fixture paths, golden seed emission, and a
+sample FinalAnswer without calling LLM backends or live geospatial services.
 """
 
 from __future__ import annotations
@@ -10,6 +10,9 @@ import json
 from pathlib import Path
 
 import yaml
+
+from evals.factory.seed import DEFAULT_OUT, build_seed_items, write_jsonl
+from geoagent.schemas import Citation, FinalAnswer, Quantity
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / "configs" / "models.yaml"
@@ -20,20 +23,43 @@ HERO_QUESTION = (
 )
 
 
+def _sample_final_answer() -> FinalAnswer:
+    return FinalAnswer(
+        trace_id="01DEMO00000000000000000000",
+        status="answered",
+        answer_md=(
+            "Dry-run placeholder: live tree-cover loss will be computed once "
+            "imagery and land-cover tools are wired."
+        ),
+        numbers=[
+            Quantity(
+                name="tree_cover_loss_placeholder",
+                value=0.0,
+                unit="ha",
+                source_tool="landcover_classify",
+            )
+        ],
+        citations=[
+            Citation(
+                doc_id="attica-env-plan-sample",
+                chunk_id="fixture",
+                quote="Placeholder citation for M0 dry-run validation.",
+            )
+        ],
+        warnings=["dry-run: no live tools executed"],
+        model_roster={"demo": "fixtures@m0"},
+    )
+
+
 def run_demo(*, dry_run: bool = False) -> int:
     if not dry_run:
         print("Live demo is not available until later milestones. Use --dry-run for M0.")
         return 2
 
-    if not CONFIG_PATH.is_file():
-        print(f"Missing model config: {CONFIG_PATH}")
-        return 1
-    if not CORPUS_MANIFEST.is_file():
-        print(f"Missing corpus manifest: {CORPUS_MANIFEST}")
-        return 1
-    if not FIXTURE_MARKER.is_file():
-        print(f"Missing fixture marker: {FIXTURE_MARKER}")
-        return 1
+    for required in (CONFIG_PATH, CORPUS_MANIFEST, FIXTURE_MARKER):
+        if not required.is_file():
+            print(f"Missing required path: {required}")
+            return 1
 
     with CONFIG_PATH.open(encoding="utf-8") as fh:
         config = yaml.safe_load(fh)
@@ -42,6 +68,10 @@ def run_demo(*, dry_run: bool = False) -> int:
     profile = config["profiles"][profile_name]
     aois = config.get("aois", {}).get("demo", [])
 
+    items = build_seed_items()
+    write_jsonl(DEFAULT_OUT, items)
+    answer = _sample_final_answer()
+
     summary = {
         "mode": "dry-run",
         "question": HERO_QUESTION,
@@ -49,6 +79,8 @@ def run_demo(*, dry_run: bool = False) -> int:
         "backend": profile.get("backend"),
         "aois": aois,
         "roles": sorted(profile.get("roles", {}).keys()),
+        "golden_seed": {"path": str(DEFAULT_OUT.relative_to(ROOT)), "count": len(items)},
+        "final_answer_status": answer.status,
         "status": "ok",
     }
     print(json.dumps(summary, indent=2))
@@ -56,8 +88,13 @@ def run_demo(*, dry_run: bool = False) -> int:
     return 0
 
 
-def main() -> int:
-    return run_demo(dry_run=True)
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="geoagent hero demo")
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args(argv)
+    return run_demo(dry_run=args.dry_run)
 
 
 if __name__ == "__main__":

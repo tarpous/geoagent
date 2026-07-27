@@ -28,6 +28,9 @@ artifacts/*
 !artifacts/.gitkeep
 evals/results/*
 !evals/results/.gitkeep
+evals/golden/*.jsonl
+!evals/golden/VERSION
+!evals/golden/.gitkeep
 
 # Local logs and tooling output
 *.log

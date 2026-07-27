@@ -33,5 +33,6 @@ See `AGENTS.md` for project context and `05-geoagent-agentic-rag.md` for the ful
 ## Status
 
 - **M0a** — package layout, locked configs, provenance stubs, demo dry-run
-- **M0b** — `FinalAnswer` schemas, geo validators, structured-output repair path (local; pending push)
+- **M0b** — `FinalAnswer` schemas, geo validators, structured-output repair path
+- **M0c** — llama.cpp/vLLM launch scripts, golden seed factory (10 items), swarm budgets
 
